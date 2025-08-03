@@ -6,6 +6,7 @@ module.exports = {
       fontFamily: {
         snack: ['"Poppins"', 'sans-serif'],
         fancy: ['"Quicksand"', '"Poppins"', 'sans-serif'],
+        serif: ['Playfair Display', 'serif'],
       },
       colors: {
         // Light Mode
@@ -58,6 +59,7 @@ module.exports = {
         'floatUp': 'floatUp 5s ease-in-out infinite',
         'floatDown': 'floatDown 6s ease-in-out infinite',
         'fadeIn': 'fadeIn 0.3s ease-out forwards',
+         rotation: 'rotation 8s infinite linear',
         'slideDown': 'slideDown 0.3s ease-out forwards',
       },
       keyframes: {
@@ -81,6 +83,10 @@ module.exports = {
           '0%': { opacity: '0', transform: 'translateY(-30px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+                rotation: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        }
       },
     },
   },

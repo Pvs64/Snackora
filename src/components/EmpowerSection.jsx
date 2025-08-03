@@ -12,6 +12,23 @@ const EmpowerSection = () => {
     height: window.innerHeight * 0.75
   });
 
+  // Generate random stars data
+  const [stars, setStars] = useState([]);
+  
+  useEffect(() => {
+    // Generate 100 stars with random positions and sizes
+    const newStars = Array.from({ length: 100 }).map(() => ({
+      id: Math.random().toString(36).substring(7),
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: `${Math.random() * 3 + 1}px`,
+      opacity: Math.random() * 0.8 + 0.2,
+      animationDelay: `${Math.random() * 5}s`,
+      animationDuration: `${Math.random() * 10 + 5}s`
+    }));
+    setStars(newStars);
+  }, []);
+
   useEffect(() => {
     const handleResize = () => {
       setDimensions({
@@ -61,6 +78,24 @@ const EmpowerSection = () => {
 
   return (
     <section ref={containerRef} className="relative w-full min-h-[80vh] bg-black text-white overflow-hidden">
+      {/* Starry Background - now using individual divs for better control */}
+      <div className="absolute inset-0 overflow-hidden">
+        {stars.map(star => (
+          <div
+            key={star.id}
+            className="absolute rounded-full bg-white"
+            style={{
+              left: star.left,
+              top: star.top,
+              width: star.size,
+              height: star.size,
+              opacity: star.opacity,
+              animation: `twinkle ${star.animationDuration} infinite ${star.animationDelay}`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Heading */}
       <div className="z-10 text-center absolute top-6 left-1/2 transform -translate-x-1/2">
         <h2 className="text-3xl sm:text-4xl font-bold text-orange-400">🌍 Explore Global Snacks</h2>
@@ -68,7 +103,7 @@ const EmpowerSection = () => {
       </div>
 
       {/* Globe */}
-      <div className="absolute top-7 inset-0">
+      <div className="absolute top-7 inset-0 z-0">
         <Globe
           ref={globeRef}
           globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
@@ -87,9 +122,8 @@ const EmpowerSection = () => {
       </div>
 
       {/* Hover Popup */}
-
       {hoverInfo && (
-        <div className="z-20 absolute bottom-8 left-1/2 transform -translate-x-1/2 backdrop-blur-[15px] backdrop-saturate-[181%] bg-[rgba(112,23,51,0.24)] border border-[rgb(252,250,95)] dark:text-white p-4 rounded-lg shadow-lg ">
+        <div className="z-20 absolute bottom-8 left-1/2 transform -translate-x-1/2 backdrop-blur-[15px] backdrop-saturate-[181%] bg-[rgba(112,23,51,0.24)] border border-[rgb(252,250,95)] dark:text-white p-4 rounded-lg shadow-lg">
           <h3 className="font-bold text-lg mb-1">{hoverInfo.country}</h3>
           {hoverInfo.snack ? (
             <div className="flex items-center gap-3">
@@ -101,30 +135,10 @@ const EmpowerSection = () => {
               <span>{hoverInfo.snack.name}</span>
             </div>
           ) : (
-            <p className="italic text-sm">No snacks yet — we’re expanding!</p>
+            <p className="italic text-sm">No snacks yet — we're expanding!</p>
           )}
         </div>
       )}
-
-
-
-      {/* {hoverInfo && (
-        <div className="z-20 absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 dark:bg-[#222] text-black dark:text-white p-4 rounded-lg shadow-lg backdrop-blur-sm transition-all">
-          <h3 className="font-bold text-lg mb-1">{hoverInfo.country}</h3>
-          {hoverInfo.snack ? (
-            <div className="flex items-center gap-3">
-              <img
-                src={`/images/${hoverInfo.snack.image}`}
-                alt={hoverInfo.snack.name}
-                className="h-12 w-12 object-cover rounded-full border"
-              />
-              <span>{hoverInfo.snack.name}</span>
-            </div>
-          ) : (
-            <p className="italic text-sm">No snacks yet — we’re expanding!</p>
-          )}
-        </div>
-      )} */}
     </section>
   );
 };

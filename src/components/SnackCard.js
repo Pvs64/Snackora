@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import confetti from 'canvas-confetti';
-import { FaRegBookmark, FaBookmark } from 'react-icons/fa';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const SnackCard = ({ snack }) => {
   const { addToCart } = useCart();
-  const [bookmarked, setBookmarked] = useState(false);
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  const handleBookmark = () => {
-    if (!bookmarked) {
+  const handleWishlist = () => {
+    if (isInWishlist(snack.id)) {
+      removeFromWishlist(snack.id);
+    } else {
+      addToWishlist(snack);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     }
-    setBookmarked(!bookmarked);
   };
 
   const handleAddToCart = () => {
@@ -21,10 +24,21 @@ const SnackCard = ({ snack }) => {
 
   return (
     <div className="relative group bg-cardGlass backdrop-blur-md border border-borderGlass shadow-glow rounded-2xl p-4 hover:scale-[1.04] transition-transform duration-300">
+      {/* Wishlist Heart */}
+      <button
+        onClick={handleWishlist}
+        className={`absolute top-2 right-2 text-2xl z-10 transition-all duration-300 ${
+          isInWishlist(snack.id) 
+            ? 'text-red-500 scale-110 animate-pulse' 
+            : 'text-white dark:text-gray-300 hover:text-red-400'
+        }`}
+      >
+        {isInWishlist(snack.id) ? <FaHeart /> : <FaRegHeart />}
+      </button>
+
       {/* Flip container */}
       <div className="relative h-72 w-full [perspective:1000px]">
         <div className="relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-
           {/* Front */}
           <div
             className="absolute inset-0 bg-white dark:bg-[#2a2a2a] rounded-xl shadow overflow-hidden"
@@ -81,14 +95,6 @@ const SnackCard = ({ snack }) => {
           </div>
         </div>
       </div>
-
-      {/* Bookmark Icon */}
-      <button
-        onClick={handleBookmark}
-        className="absolute top-2 right-2 text-lg text-orange-500 z-990"
-      >
-        {bookmarked ? <FaBookmark /> : <FaRegBookmark />}
-      </button>
     </div>
   );
 };
