@@ -77,7 +77,7 @@ const EmpowerSection = () => {
   };
 
   return (
-    <section ref={containerRef} className="relative w-full min-h-[80vh] bg-black text-white overflow-hidden">
+    <section ref={containerRef} className="relative w-full min-h-[80vh] bg-[#0a082d] text-white overflow-hidden">
       {/* Starry Background - now using individual divs for better control */}
       <div className="absolute inset-0 overflow-hidden">
         {stars.map(star => (
@@ -98,8 +98,8 @@ const EmpowerSection = () => {
 
       {/* Heading */}
       <div className="z-10 text-center absolute top-6 left-1/2 transform -translate-x-1/2">
-        <h2 className="text-3xl sm:text-4xl font-bold text-orange-400">🌍 Explore Global Snacks</h2>
-        <p className="text-sm sm:text-base text-white/70">Hover over a country to discover snacks!</p>
+        <h2 className="text-3xl sm:text-4xl font-bold text-orange-400">Explore Global Snacks</h2>
+        {/* <p className="text-sm sm:text-base text-white/70">Hover over a country to discover snacks!</p> */}
       </div>
 
       {/* Globe */}

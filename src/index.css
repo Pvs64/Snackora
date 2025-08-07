@@ -186,7 +186,7 @@ header {
 .animate-parallaxRise { animation: parallaxRise 4.5s cubic-bezier(0.36, 0.95, 0.65, 1) forwards; }
 .animate-logoReveal { animation: logoReveal 1.5s ease-out forwards; }
 .animate-textReveal { animation: textReveal 1.2s ease-out forwards; }
-.animate-glowSupreme { animation: glowSupreme 5s ease-in-out infinite; }
+.animate-glowSupreme { animation: glowSupreme 2s ease-in-out infinite; }
 .animate-supremeProgress { transition: width 4s cubic-bezier(0.4, 0, 0.2, 1); }
 .animate-orbitGlow { animation: orbitGlow 10s ease-in-out infinite; }
 .animate-globeSpin { animation: globeSpin 60s linear infinite; }
