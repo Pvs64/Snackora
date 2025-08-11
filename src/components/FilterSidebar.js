@@ -1,96 +1,126 @@
-import React from 'react';
-import snacks from '../data/snacksData';
+import React, { useState, useEffect } from "react";
 
-const FilterSidebar = ({ filters, setFilters }) => {
-  const continents = [...new Set(snacks.map(s => s.continent))];
-  const origins = [...new Set(snacks.map(s => s.origin))];
-  const flavors = [...new Set(snacks.map(s => s.flavor))];
+const FilterSidebar = ({ filters, setFilters, snacks = [] }) => {
+  const [countries, setCountries] = useState([]);
+
+  // Extract unique filters safely
+  const continents = [...new Set(snacks.map((s) => s.continent).filter(Boolean))];
+  const categories = [...new Set(snacks.map((s) => s.category).filter(Boolean))];
+  const allergensList = [...new Set(snacks.flatMap((s) => s.allergens || []).filter(Boolean))]; // Fixed missing parenthesis
+
+  // Update countries list when continent changes
+  useEffect(() => {
+    if (filters.continent) {
+      const filteredCountries = [
+        ...new Set(
+          snacks
+            .filter((s) => s.continent === filters.continent)
+            .map((s) => s.origin)
+            .filter(Boolean)
+        ),
+      ];
+      setCountries(filteredCountries);
+    } else {
+      setCountries([]);
+    }
+  }, [filters.continent, snacks]);
+
+  const updateFilter = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      continent: "",
+      origin: "",
+      flavor: "",
+      maxPrice: 300,
+      isVeg: null,
+    });
+  };
 
   return (
-    <aside className="w-64 bg-white dark:bg-[#141414] border-r p-4 sticky top-[4.5rem] self-start h-fit shadow-md" data-aos="fade-right">
-      <h2 className="text-lg font-semibold mb-4">Filter Snacks</h2>
+    <aside className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-auto p-4 bg-gray-100 rounded-lg shadow">
+      <h2 className="font-bold text-lg mb-4">Filters</h2>
 
-      {/* Continent Filter */}
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Continent</label>
+      {/* Continent */}
+      <label className="block mb-2">
+        Continent:
         <select
           value={filters.continent}
-          onChange={e => setFilters({ ...filters, continent: e.target.value })}
-          className="w-full p-2 rounded border dark:bg-[#2a2a2a]"
+          onChange={(e) => updateFilter("continent", e.target.value)}
+          className="w-full mt-1 p-2 border rounded"
         >
           <option value="">All</option>
-          {continents.map(cont => (
-            <option key={cont} value={cont}>{cont}</option>
+          {continents.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
-      </div>
+      </label>
 
-      {/* Country Filter */}
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Country</label>
+      {/* Country */}
+      <label className="block mb-2">
+        Country:
         <select
           value={filters.origin}
-          onChange={e => setFilters({ ...filters, origin: e.target.value })}
-          className="w-full p-2 rounded border dark:bg-[#2a2a2a]"
+          onChange={(e) => updateFilter("origin", e.target.value)}
+          className="w-full mt-1 p-2 border rounded"
+          disabled={!filters.continent}
         >
           <option value="">All</option>
-          {origins.map(origin => (
-            <option key={origin} value={origin}>{origin}</option>
+          {countries.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
-      </div>
+      </label>
 
-      {/* Flavor Filter */}
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Flavor</label>
-        <select
+      {/* Flavor */}
+      <label className="block mb-2">
+        Flavor:
+        <input
+          type="text"
           value={filters.flavor}
-          onChange={e => setFilters({ ...filters, flavor: e.target.value })}
-          className="w-full p-2 rounded border dark:bg-[#2a2a2a]"
-        >
-          <option value="">All</option>
-          {flavors.map(flavor => (
-            <option key={flavor} value={flavor}>{flavor}</option>
-          ))}
-        </select>
-      </div>
+          onChange={(e) => updateFilter("flavor", e.target.value)}
+          className="w-full mt-1 p-2 border rounded"
+          placeholder="Search flavors..."
+        />
+      </label>
 
-      {/* Veg / Non-Veg */}
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Type</label>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setFilters({ ...filters, isVeg: true })}
-            className={`flex-1 p-2 rounded ${filters.isVeg === true ? 'bg-green-500 text-white' : 'bg-gray-100 dark:bg-[#2a2a2a]'}`}
-          >
-            Veg
-          </button>
-          <button
-            onClick={() => setFilters({ ...filters, isVeg: false })}
-            className={`flex-1 p-2 rounded ${filters.isVeg === false ? 'bg-red-500 text-white' : 'bg-gray-100 dark:bg-[#2a2a2a]'}`}
-          >
-            Non-Veg
-          </button>
-        </div>
-      </div>
-
-      {/* Price Range */}
-      <div className="mb-6">
-        <label className="block font-medium mb-1">Max Price: ₹{filters.maxPrice}</label>
+      {/* Max Price */}
+      <label className="block mb-2">
+        Max Price: ${filters.maxPrice}
         <input
           type="range"
           min="0"
           max="300"
           value={filters.maxPrice}
-          onChange={e => setFilters({ ...filters, maxPrice: Number(e.target.value) })}
-          className="w-full"
+          onChange={(e) => updateFilter("maxPrice", Number(e.target.value))}
+          className="w-full mt-1"
         />
-      </div>
+      </label>
+
+      {/* Veg / Non-Veg */}
+      <label className="block mb-4">
+        Veg / Non-Veg:
+        <select
+          value={filters.isVeg ?? ""}
+          onChange={(e) => updateFilter("isVeg", e.target.value === "" ? null : e.target.value === "true")}
+          className="w-full mt-1 p-2 border rounded"
+        >
+          <option value="">All</option>
+          <option value="true">Veg</option>
+          <option value="false">Non-Veg</option>
+        </select>
+      </label>
 
       {/* Reset Button */}
       <button
-        onClick={() => setFilters({ continent: '', origin: '', flavor: '', maxPrice: 300, isVeg: null })}
-        className="w-full py-2 bg-gray-200 hover:bg-gray-300 dark:bg-[#333] dark:hover:bg-[#444] rounded transition"
+        onClick={resetFilters}
+        className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
       >
         Reset Filters
       </button>

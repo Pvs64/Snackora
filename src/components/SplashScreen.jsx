@@ -11,7 +11,6 @@ const SplashScreen = () => {
       sessionStorage.setItem('snackora-welcome-shown', 'true');
     }
 
-    // Animation timeline
     const phaseTimers = [
       setTimeout(() => setAnimationPhase(1), 800),  // Rings appear
       setTimeout(() => setAnimationPhase(2), 1800), // Logo appears
@@ -22,63 +21,66 @@ const SplashScreen = () => {
     return () => phaseTimers.forEach(clearTimeout);
   }, []);
 
-  return (
-    <>
-      {showSplash && (
-        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden">
-          {/* SVG Filter for glow effect */}
-          <svg className="filter" xmlns="http://www.w3.org/2000/svg" version="1.1">
-            <filter id="blurFilter">
-              <feGaussianBlur stdDeviation="4.5"></feGaussianBlur>
-              <feColorMatrix 
-                type="matrix" 
-                values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 19 -9"
-              ></feColorMatrix>
-            </filter>
-          </svg>
+  if (!showSplash) return null;
 
-          {/* Animated rings container */}
-          <div className="demo">
-            <div className="rings">
-              <div className="rings">
-                <div className={`logo transition-opacity duration-1000 ${animationPhase >= 2 ? 'opacity-100' : 'opacity-0'}`}>
-                  <img 
-                    src={logo} 
-                    alt="Snackora logo" 
-                    className="w-32 h-32 object-contain"
-                  />
-                </div>
-              </div>
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden">
+      <svg className="filter" xmlns="http://www.w3.org/2000/svg" version="1.1">
+        <filter id="blurFilter">
+          <feGaussianBlur stdDeviation="4.5" />
+          <feColorMatrix
+            type="matrix"
+            values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 19 -9"
+          />
+        </filter>
+      </svg>
+
+      <div className="demo">
+        <div className="rings">
+          <div className="rings">
+            <div
+              className={`logo transition-opacity duration-1000 ${
+                animationPhase >= 2 ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img
+                src={logo}
+                alt="Snackora logo"
+                className="w-32 h-32 object-contain"
+              />
             </div>
           </div>
-
-          {/* Text content */}
-          <div className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000 ${animationPhase >= 3 ? 'opacity-100' : 'opacity-0'}`}>
-            <h1 className="text-5xl sm:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-600 mb-4">
-              Welcome to <span className="font-extrabold">Snackora</span>
-            </h1>
-            <p className="text-xl text-gray-300 font-medium">
-              Your Passport To World Taste
-            </p>
-          </div>
         </div>
-      )}
+      </div>
+
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000 ${
+          animationPhase >= 3 ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <h1 className="text-5xl sm:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-600 mb-4">
+          Welcome to <span className="font-extrabold">Snackora</span>
+        </h1>
+        <p className="text-xl text-gray-300 font-medium">
+          Your Passport To World Taste
+        </p>
+      </div>
 
       <style jsx global>{`
         @property --value {
-          syntax: "<angle>";
+          syntax: '<angle>';
           inherits: true;
           initial-value: 0deg;
         }
 
         @property --width-ratio {
-          syntax: "<number>";
+          syntax: '<number>';
           inherits: true;
           initial-value: 0;
         }
 
         @property --scale {
-          syntax: "<number>";
+          syntax: '<number>';
           inherits: true;
           initial-value: 0;
         }
@@ -100,7 +102,7 @@ const SplashScreen = () => {
 
         .rings:before,
         .rings:after {
-          content: "";
+          content: '';
           position: absolute;
           inset: 0;
           background: rgba(255, 0, 0, 1);
@@ -109,24 +111,24 @@ const SplashScreen = () => {
           border: calc(var(--width) * var(--width-ratio)) solid transparent;
           mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
           background: conic-gradient(
-              from calc(var(--value) * 3),
-              #41dbff,
-              transparent,
-              #04f5ff,
-              #278ebb,
-              #3bf6ff,
-              transparent,
-              transparent,
-              #00a8ff,
-              transparent,
-              #24e0ff,
-              #00cdff,
-              white,
-              transparent,
-              transparent,
-              transparent
-            )
-            border-box;
+            from calc(var(--value) * 3),
+            #41dbff,
+            transparent,
+            #04f5ff,
+            #278ebb,
+            #3bf6ff,
+            transparent,
+            transparent,
+            #00a8ff,
+            transparent,
+            #24e0ff,
+            #00cdff,
+            white,
+            transparent,
+            transparent,
+            transparent
+          )
+          border-box;
           mask-composite: exclude;
           animation: ring var(--duration) ease-in-out infinite;
           --start: 180deg;
@@ -219,7 +221,7 @@ const SplashScreen = () => {
           position: absolute;
         }
       `}</style>
-    </>
+    </div>
   );
 };
 
