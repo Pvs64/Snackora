@@ -220,12 +220,16 @@ function App() {
 
   return (
     <div className="relative">
+        <div className="fixed inset-0 -z-50 
+                    bg-grid-pattern dark:bg-grid-pattern-dark 
+                    bg-grid-size 
+                    bg-[position:0px_0px]
+                    bg-backgroundLight dark:bg-backgroundDark" />
       {showLoginModal && <LoginModal />}
       <SplashScreen />
       <ScrollToTop />
       <Toaster position="top-center" reverseOrder={false} />
       <CursorGlow />
-      <div className="fixed inset-0 -z-50 bg-grid-pattern" />
       <div className="min-h-screen transition-all duration-500 bg-backgroundLight/80 text-[#40210f] dark:bg-backgroundDark/80 dark:text-white">
         <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/20 dark:bg-black/20 border-b border-white/10 dark:border-black/10 shadow-sm transition-all duration-300">
           <div className="container mx-auto px-4 py-3 flex items-center justify-between">

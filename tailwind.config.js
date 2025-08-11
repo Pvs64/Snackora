@@ -8,6 +8,19 @@ module.exports = {
         fancy: ['"Quicksand"', '"Poppins"', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
       },
+            backgroundImage: {
+        'grid-pattern': `
+          linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px)
+        `,
+        'grid-pattern-dark': `
+          linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+        `
+      },
+      backgroundSize: {
+        'grid-size': '40px 40px'
+      },
       colors: {
         // Light Mode
         backgroundLight: '#fff6ec',
