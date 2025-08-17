@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiUser, FiShoppingCart, FiHeart, FiLogOut, FiChevronDown, FiMapPin } from 'react-icons/fi';
+import {
+  FiUser,
+  FiShoppingCart,
+  FiHeart,
+  FiLogOut,
+  FiChevronDown,
+  FiMapPin,
+  FiMenu,
+  FiX
+} from 'react-icons/fi';
 import { FaSearch } from 'react-icons/fa';
 import snacks from './data/snacksData';
 import FilterSidebar from './components/FilterSidebar';
@@ -16,7 +25,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useCart } from './context/CartContext';
 import PassportCollector from './components/PassportCollector';
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import { useWishlist } from './context/WishlistContext';
 import SplashScreen from './components/SplashScreen';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -27,11 +36,13 @@ import Contact from './components/Contact';
 import About from './components/About';
 import Wishlist from './components/Wishlist';
 import SnackDetail from './components/SnackDetail';
-import Addresses from './components/Addresses';
-import { useUser } from './context/UserContext';
+import { useUser } from "./context/UserContext";
+import Addresses from "./components/Addresses";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./components/Login";
 
 function App() {
-  const { user, login, logout, isLoading } = useUser();
+  const { user, logout, isLoading } = useUser();
   const { wishlist } = useWishlist();
   const { cartItems } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,15 +54,23 @@ function App() {
     isVeg: null,
   });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
-  const [loginForm, setLoginForm] = useState({
-    email: '',
-    password: '',
-    name: '',
-  });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Temporary debugging for z-index issues
+  useEffect(() => {
+    const grid = document.querySelector('.grid-background');
+    if (grid) {
+      console.log('Grid Background Z-Index:', getComputedStyle(grid).zIndex);
+      console.log('Grid Background Display:', getComputedStyle(grid).display);
+    }
+    const overlay = document.querySelector('.content-overlay');
+    if (overlay) {
+      console.log('Overlay Z-Index:', getComputedStyle(overlay).zIndex);
+    }
+  }, []);
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -80,17 +99,6 @@ function App() {
     AOS.init({ duration: 700, once: true });
   }, []);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await login({ email: loginForm.email, password: loginForm.password, name: loginForm.name });
-      setShowLoginModal(false);
-      setLoginForm({ email: '', password: '', name: '' });
-    } catch (error) {
-      // Error is handled by UserContext with toast
-    }
-  };
-
   const handleLogout = () => {
     logout();
     setShowAddressDropdown(false);
@@ -100,17 +108,15 @@ function App() {
     if (isLoading) {
       return <div className="h-10 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>;
     }
-
     if (user) {
       return (
         <div className="relative group">
           <button
-            onClick={() => {}}
             className="group relative overflow-hidden px-4 py-2 rounded-xl bg-gradient-to-tr from-orange-400 to-pink-500 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 text-sm"
           >
             <span className="relative z-10 flex items-center gap-2">
               <FiUser className="text-lg group-hover:scale-110 transition-transform" />
-              <span className="hidden sm:inline">{user.name}</span>
+              <span className="hidden sm:inline">{user.email}</span>
             </span>
           </button>
           <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
@@ -139,10 +145,9 @@ function App() {
         </div>
       );
     }
-
     return (
       <button
-        onClick={() => setShowLoginModal(true)}
+        onClick={() => navigate('/login')}
         className="group relative overflow-hidden px-4 py-2 rounded-xl bg-gradient-to-tr from-orange-400 to-pink-500 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 text-sm"
       >
         <span className="relative z-10 flex items-center gap-2">
@@ -153,62 +158,6 @@ function App() {
     );
   };
 
-  const LoginModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
-        <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">Name</label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
-              value={loginForm.name}
-              onChange={(e) => setLoginForm({ ...loginForm, name: e.target.value })}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">Email</label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
-              value={loginForm.email}
-              onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">Password</label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
-              value={loginForm.password}
-              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-              required
-            />
-          </div>
-          <div className="flex justify-between items-center">
-            <button
-              type="submit"
-              className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Logging in...' : 'Login'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowLoginModal(false)}
-              className="text-gray-600 dark:text-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-
   const filteredSnacks = snacks.filter((snack) =>
     (filters.continent === '' || snack.continent === filters.continent) &&
     (filters.origin === '' || snack.origin === filters.origin) &&
@@ -218,14 +167,35 @@ function App() {
     snack.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const NavLink = ({ to, text, children, onClick }) => {
+    const letters = text.split('');
+    return (
+      <Link to={to} className="relative group" onClick={onClick}>
+        <button className="text-gray-700 dark:text-gray-300 font-medium uppercase tracking-wider relative overflow-hidden">
+          <span className="inline-block transition-all duration-200 group-hover:opacity-0 group-hover:-translate-y-full">
+            {text}
+          </span>
+          <span className="absolute inset-0 flex justify-center items-center">
+            {letters.map((letter, index) => (
+              <span
+                key={index}
+                className="inline-block text-gray-700 dark:text-gray-300 opacity-0 translate-y-[-20px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0"
+                style={{ transitionDelay: `${index * 0.15}s` }}
+              >
+                {letter}
+              </span>
+            ))}
+          </span>
+          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gray-700 dark:bg-orange-400 transition-all duration-400 group-hover:w-full group-hover:left-0"></span>
+        </button>
+      </Link>
+    );
+  };
+
   return (
     <div className="relative">
-        <div className="fixed inset-0 -z-50 
-                    bg-grid-pattern dark:bg-grid-pattern-dark 
-                    bg-grid-size 
-                    bg-[position:0px_0px]
-                    bg-backgroundLight dark:bg-backgroundDark" />
-      {showLoginModal && <LoginModal />}
+      <div className="grid-background" />
+      <div className="fixed inset-0 -z-30 content-overlay" />
       <SplashScreen />
       <ScrollToTop />
       <Toaster position="top-center" reverseOrder={false} />
@@ -237,8 +207,8 @@ function App() {
               <Link to="/" className="flex items-center">
                 <img src={logo} alt="Snackora Logo" className="h-12 sm:h-14 w-auto object-contain" />
               </Link>
-              {user && user.addresses?.length > 0 ? (
-                <div className="relative">
+              {user && user.addresses?.length > 0 && (
+                <div className="relative hidden md:block">
                   <button
                     onClick={() => setShowAddressDropdown(!showAddressDropdown)}
                     className="flex items-center text-sm text-gray-700 dark:text-gray-300 truncate max-w-[150px]"
@@ -258,17 +228,7 @@ function App() {
                         <div
                           key={addr.id}
                           className="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                          onClick={() => {
-                            const updatedUser = {
-                              ...user,
-                              addresses: [
-                                addr,
-                                ...user.addresses.filter((a) => a.id !== addr.id),
-                              ],
-                            };
-                            localStorage.setItem('user', JSON.stringify(updatedUser));
-                            setShowAddressDropdown(false);
-                          }}
+                          onClick={() => setShowAddressDropdown(false)}
                         >
                           {`${addr.street}, ${addr.city}, ${addr.country}`}
                         </div>
@@ -282,105 +242,44 @@ function App() {
                     </div>
                   )}
                 </div>
-              ) : (
-                user && (
-                  <Link to="/addresses" className="text-sm text-gray-700 dark:text-gray-300">
-                    Add Address
-                  </Link>
-                )
               )}
             </div>
-            <nav className="absolute left-1/2 transform -translate-x-1/2 hidden md:block">
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-gray-700 dark:text-gray-300 focus:outline-none"
+              >
+                {mobileMenuOpen ? (
+                  <FiX className="h-6 w-6" />
+                ) : (
+                  <FiMenu className="h-6 w-6" />
+                )}
+              </button>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
               <div className="flex space-x-8">
-                <Link to="/" className="relative group">
-                  <button className="text-gray-700 dark:text-gray-300 font-medium uppercase tracking-wider relative overflow-hidden">
-                    <span className="inline-block transition-all duration-200 group-hover:opacity-0 group-hover:-translate-y-full">
-                      Home
-                    </span>
-                    <span className="absolute inset-0 flex justify-center items-center">
-                      {['H', 'o', 'm', 'e'].map((letter, index) => (
-                        <span
-                          key={index}
-                          className="inline-block text-gray-700 dark:text-gray-300 opacity-0 translate-y-[-20px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0"
-                          style={{ transitionDelay: `${index * 0.15}s` }}
-                        >
-                          {letter}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gray-700 dark:bg-orange-400 transition-all duration-400 group-hover:w-full group-hover:left-0"></span>
-                  </button>
-                </Link>
-                <Link
+                <NavLink to="/" text="Home" />
+                <NavLink
                   to="/#products-section"
-                  className="relative group"
+                  text="Products"
                   onClick={(e) => {
                     if (window.location.pathname === '/') {
                       e.preventDefault();
                       scrollToSection('products-section');
                     }
                   }}
-                >
-                  <button className="text-gray-700 dark:text-gray-300 font-medium uppercase tracking-wider relative overflow-hidden">
-                    <span className="inline-block transition-all duration-200 group-hover:opacity-0 group-hover:-translate-y-full">
-                      Products
-                    </span>
-                    <span className="absolute inset-0 flex justify-center items-center">
-                      {['P', 'r', 'o', 'd', 'u', 'c', 't', 's'].map((letter, index) => (
-                        <span
-                          key={index}
-                          className="inline-block text-gray-700 dark:text-gray-300 opacity-0 translate-y-[-20px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0"
-                          style={{ transitionDelay: `${index * 0.15}s` }}
-                        >
-                          {letter}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gray-700 dark:bg-orange-400 transition-all duration-400 group-hover:w-full group-hover:left-0"></span>
-                  </button>
-                </Link>
-                <Link to="/about" className="relative group">
-                  <button className="text-gray-700 dark:text-gray-300 font-medium uppercase tracking-wider relative overflow-hidden">
-                    <span className="inline-block transition-all duration-200 group-hover:opacity-0 group-hover:-translate-y-full">
-                      About
-                    </span>
-                    <span className="absolute inset-0 flex justify-center items-center">
-                      {['A', 'b', 'o', 'u', 't'].map((letter, index) => (
-                        <span
-                          key={index}
-                          className="inline-block text-gray-700 dark:text-gray-300 opacity-0 translate-y-[-20px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0"
-                          style={{ transitionDelay: `${index * 0.15}s` }}
-                        >
-                          {letter}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gray-700 dark:bg-orange-400 transition-all duration-400 group-hover:w-full group-hover:left-0"></span>
-                  </button>
-                </Link>
-                <Link to="/contact" className="relative group">
-                  <button className="text-gray-700 dark:text-gray-300 font-medium uppercase tracking-wider relative overflow-hidden">
-                    <span className="inline-block transition-all duration-200 group-hover:opacity-0 group-hover:-translate-y-full">
-                      Contact
-                    </span>
-                    <span className="absolute inset-0 flex justify-center items-center">
-                      {['C', 'o', 'n', 't', 'a', 'c', 't'].map((letter, index) => (
-                        <span
-                          key={index}
-                          className="inline-block text-gray-700 dark:text-gray-300 opacity-0 translate-y-[-20px] transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0"
-                          style={{ transitionDelay: `${index * 0.15}s` }}
-                        >
-                          {letter}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gray-700 dark:bg-orange-400 transition-all duration-400 group-hover:w-full group-hover:left-0"></span>
-                  </button>
-                </Link>
+                />
+                <NavLink to="/about" text="About" />
+                <NavLink to="/contact" text="Contact" />
               </div>
             </nav>
+
             <div className="flex items-center gap-4">
-              <div className={`relative transition-all duration-300 ${isSearchFocused ? 'scale-[1.02]' : ''}`} style={{ width: '200px' }}>
+              <div className={`relative transition-all duration-300 ${isSearchFocused ? 'scale-[1.02]' : ''} hidden sm:block`} style={{ width: '200px' }}>
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaSearch className={`text-gray-500 dark:text-gray-400 transition-all duration-300 ${isSearchFocused ? 'text-orange-500 scale-110' : ''}`} />
                 </div>
@@ -422,9 +321,78 @@ function App() {
               </div>
             </div>
           </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden bg-white dark:bg-gray-800 shadow-lg rounded-b-lg">
+              <div className="px-4 py-3">
+                <div className="relative mb-4">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaSearch className="text-gray-500 dark:text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Discover snacks..."
+                    className="block w-full pl-10 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white via-orange-50 to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 placeholder-gray-500 dark:placeholder-gray-400 shadow-md text-gray-800 dark:text-white transition-all text-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => setIsSearchFocused(false)}
+                  />
+                </div>
+                <div className="flex flex-col space-y-4">
+                  <NavLink
+                    to="/"
+                    text="Home"
+                    onClick={() => setMobileMenuOpen(false)}
+                  />
+                  <NavLink
+                    to="/#products-section"
+                    text="Products"
+                    onClick={(e) => {
+                      if (window.location.pathname === '/') {
+                        e.preventDefault();
+                        scrollToSection('products-section');
+                      }
+                      setMobileMenuOpen(false);
+                    }}
+                  />
+                  <NavLink
+                    to="/about"
+                    text="About"
+                    onClick={() => setMobileMenuOpen(false)}
+                  />
+                  <NavLink
+                    to="/contact"
+                    text="Contact"
+                    onClick={() => setMobileMenuOpen(false)}
+                  />
+                  {user && (
+                    <>
+                      <Link
+                        to="/orders"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Order History
+                      </Link>
+                      <Link
+                        to="/addresses"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Saved Addresses
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </header>
 
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route
             path="/"
             element={
@@ -454,8 +422,16 @@ function App() {
               </>
             }
           />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          } />
+          <Route path="/cart" element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          } />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/faq" element={<FAQ />} />
@@ -465,10 +441,10 @@ function App() {
           <Route
             path="/orders"
             element={
-              user ? (
+              <ProtectedRoute>
                 <div className="min-h-screen flex flex-col items-center justify-center p-6">
                   <h2 className="text-2xl font-bold mb-4">Order History</h2>
-                  {user.orderHistory?.length > 0 ? (
+                  {user && user.orderHistory?.length > 0 ? (
                     <ul className="w-full max-w-2xl">
                       {user.orderHistory.map((order, index) => (
                         <li key={index} className="border-b py-4">
@@ -480,15 +456,16 @@ function App() {
                     <p>No orders found.</p>
                   )}
                 </div>
-              ) : (
-                <div className="min-h-screen flex items-center justify-center">
-                  Please log in to view your order history.
-                </div>
-              )
+              </ProtectedRoute>
             }
           />
-          <Route path="/addresses" element={<Addresses />} />
+          <Route path="/addresses" element={
+            <ProtectedRoute>
+              <Addresses />
+            </ProtectedRoute>
+          } />
         </Routes>
+
         <footer className="bg-gray-900 text-gray-300 border-t border-gray-800">
           <div className="container mx-auto px-6 py-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

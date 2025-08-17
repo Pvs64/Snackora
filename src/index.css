@@ -1,22 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Cinzel+Decorative:wght@400;700;900&display=swap');
 
-/* ===== Base Styles ===== */
-html { scroll-behavior: smooth; }
-
-body {
-  @apply font-fancy transition-colors duration-500 bg-backgroundLight text-snackBrown dark:bg-backgroundDark dark:text-white;
-  overflow-x: hidden;
+/* ===== Grid Background System ===== */
+.grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -20; /* Adjusted for visibility */
+  background-color: #191a1a;
+  --color: rgba(114, 114, 114, 0.3);
+  background-image:
+    linear-gradient(0deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent);
+  background-size: 55px 55px;
+  -webkit-background-size: 55px 55px; /* For Webkit compatibility */
+  opacity: 1;
+  animation: gridShift 30s linear infinite;
 }
 
-/* ===== 3D Effects ===== */
-.perspective { perspective: 1000px; }
-.preserve-3d { transform-style: preserve-3d; }
-.backface-hidden { backface-visibility: hidden; }
-.rotate-y-180 { transform: rotateY(180deg); }
+.dark .grid-background {
+  background-color: #191a1a; /* Maintain same background for dark mode */
+  --color: rgba(114, 114, 114, 0.3); /* Same grid line color for consistency */
+  background-image:
+    linear-gradient(0deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent);
+  opacity: 0.8;
+}
+
+@keyframes gridShift {
+  0% { background-position: 0 0; }
+  100% { background-position: 55px 55px; }
+}
+
+/* ===== Content Overlay ===== */
+.content-overlay {
+  background-color: rgba(255, 255, 255, 0.3); /* Low opacity to show grid */
+}
+
+.dark .content-overlay {
+  background-color: rgba(0, 0, 0, 0.3); /* Low opacity for dark mode */
+}
+
+/* ===== Base Styles ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-fancy transition-colors duration-500 text-snackBrown dark:text-white;
+  overflow-x: hidden;
+}
 
 /* ===== Canvas Overrides ===== */
 canvas {
@@ -24,6 +61,12 @@ canvas {
   touch-action: none !important;
   pointer-events: auto !important;
 }
+
+/* ===== 3D Effects ===== */
+.perspective { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
 
 /* ===== Glass Effects ===== */
 .glass-card {
@@ -36,7 +79,9 @@ header {
   background: rgba(255, 255, 255, 0.15) !important;
 }
 
-.dark header { background: rgba(0, 0, 0, 0.15) !important; }
+.dark header {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
 
 /* ===== Cursor Effects ===== */
 .cursor-glow {
@@ -85,6 +130,7 @@ header {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-20px) rotate(5deg); }
 }
+
 @keyframes floatDown {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(20px) rotate(-5deg); }
@@ -196,23 +242,19 @@ header {
 
 /* ===== Interactive Elements ===== */
 .search-bar-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-
 .search-bar-focused {
   transform: scale(1.02);
   box-shadow: 0 4px 20px rgba(255, 123, 84, 0.15);
 }
-
 .login-button {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
 }
-
 .login-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
 }
-
 .login-button::before {
   content: '';
   position: absolute;
@@ -223,15 +265,11 @@ header {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: 0.5s;
 }
-
 .login-button:hover::before { left: 100%; }
-
 .input-focus-effect:focus { box-shadow: 0 0 0 3px rgba(255, 123, 84, 0.25); }
-
 button, .btn {
   @apply transition duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98];
 }
-
 .wishlist-btn { transition: all 0.3s ease; }
 .wishlist-btn:hover { transform: scale(1.1); }
 
@@ -242,19 +280,16 @@ button, .btn {
   background-size: cover;
   transition: background 1.5s ease;
 }
-
 .ultra-luxury-glass {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(40px) brightness(1.2);
   border: 2.5px solid rgba(255, 255, 255, 0.35);
 }
-
 .ultra-luxury-headline {
   font-family: 'Cinzel Decorative', 'DM Serif Display', Georgia, serif;
   letter-spacing: -0.07em;
   line-height: 1.1;
 }
-
 @media (prefers-color-scheme: dark) {
   .ultra-luxury-bg {
     background: linear-gradient(155deg, #1e143f 0%, #2e1045 45%, #3b0c6a 100%);
@@ -263,4 +298,19 @@ button, .btn {
     background: rgba(50, 40, 90, 0.8);
     border: 2.5px solid rgba(200, 200, 255, 0.35);
   }
+}
+
+/* ===== Scrollbar Styling ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gradient-to-b from-orange-400 to-pink-500 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gradient-to-b from-orange-500 to-pink-600;
 }

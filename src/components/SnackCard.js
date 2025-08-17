@@ -5,7 +5,6 @@ import { FaHeart, FaRegHeart, FaShoppingCart, FaStar } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 
 const SnackCard = ({ snack = {}, index = 0 }) => {
   const { addToCart } = useCart();
@@ -35,16 +34,11 @@ const SnackCard = ({ snack = {}, index = 0 }) => {
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
-    if (!snack?.id) {
-      toast.error('Invalid snack data');
-      return;
-    }
-    addToCart(snack);
+    if (!snack?.id) return;
+    
+    addToCart(snack, true); // Pass true to show effects
     setQuickAdd(true);
     setTimeout(() => setQuickAdd(false), 1500);
-    toast.success(`${snack.name} added to cart!`, {
-      style: { background: '#34d399', color: '#fff', borderRadius: '12px' },
-    });
   };
 
   const handleMouseMove = (e) => {
@@ -56,10 +50,8 @@ const SnackCard = ({ snack = {}, index = 0 }) => {
 
   const toggleWishlist = (e) => {
     e.stopPropagation();
-    if (!snack?.id) {
-      toast.error('Invalid snack data');
-      return;
-    }
+    if (!snack?.id) return;
+    
     if (isInWishlist(snack.id)) {
       removeFromWishlist(snack.id);
     } else {

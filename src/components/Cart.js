@@ -3,7 +3,6 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useUser } from '../context/UserContext';
 import { Link } from 'react-router-dom';
-import confetti from 'canvas-confetti';
 import { FiTrash2, FiChevronLeft, FiPlus, FiMinus, FiShoppingCart, FiHeart } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import OrderPlacementModal from './OrderPlacementModal';
@@ -33,12 +32,6 @@ const Cart = () => {
         items: [...cartItems],
         total: totalPrice,
         date: new Date().toISOString(),
-      });
-      confetti({
-        particleCount: 200,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ff6b6b', '#48dbfb', '#1dd1a1', '#feca57'],
       });
       toast.success('🎉 Order placed successfully!', {
         duration: 4000,

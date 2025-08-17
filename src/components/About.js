@@ -16,17 +16,6 @@ const About = () => {
       ]
     },
     {
-      name: "Yashasvi Shukla",
-      role: "Co-Founder",
-      image: "/images/image4.jpg", // Make sure to add image4.jpg to your public/images folder
-      bio: "Business Strategist || Marketing Expert",
-      socials: [
-        { platform: "github", url: "#", icon: <FaGithub /> },
-        { platform: "linkedin", url: "#", icon: <FaLinkedin /> },
-        { platform: "instagram", url: "#", icon: <FaInstagram /> }
-      ]
-    },
-    {
       name: "Prava Labonna",
       role: "Head of Product",
       image: "/images/image2.png",

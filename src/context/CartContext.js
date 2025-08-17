@@ -1,74 +1,93 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
+import confetti from "canvas-confetti";
 
 const CartContext = createContext();
 
-export const CartProvider = ({ children }) => {
+export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+    // Load cart from localStorage only once
+    if (!hasInitialized) {
+      const stored = localStorage.getItem("snackora_cart");
+      if (stored) {
+        setCartItems(JSON.parse(stored));
+      }
+      setHasInitialized(true);
     }
-  }, []);
+  }, [hasInitialized]);
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+    if (hasInitialized) {
+      localStorage.setItem("snackora_cart", JSON.stringify(cartItems));
+    }
+  }, [cartItems, hasInitialized]);
 
-  const addToCart = (snack) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === snack.id);
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === snack.id ? { ...item, quantity: item.quantity + 1 } : item
+  const addToCart = (item, showEffects = false) => {
+    setCartItems((prev) => {
+      const exists = prev.find((i) => i.id === item.id);
+      if (exists) {
+        return prev.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
-      return [...prevItems, { ...snack, quantity: 1 }];
+      return [...prev, { ...item, quantity: 1 }];
     });
-    toast.success(`${snack.name} added to cart!`, {
-      style: { background: '#34d399', color: '#fff', borderRadius: '12px' },
-    });
+
+    if (showEffects) {
+      toast.success(`Added ${item.name} to cart!`, {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#1dd1a1',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '12px',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+        },
+      });
+
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ff6b6b', '#48dbfb', '#1dd1a1', '#feca57'],
+      });
+    }
   };
 
   const removeFromCart = (id) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-    toast.success('Item removed from cart!', {
-      style: { background: '#34d399', color: '#fff', borderRadius: '12px' },
-    });
+    setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const clearCart = () => setCartItems([]);
+
   const updateQuantity = (id, quantity) => {
-    if (quantity < 1) {
-      removeFromCart(id);
-      return;
-    }
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity } : item
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
       )
     );
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-    localStorage.removeItem('cart');
-  };
-
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart }}
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        updateQuantity,
+      }}
     >
       {children}
     </CartContext.Provider>
   );
-};
+}
 
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
-};
+export function useCart() {
+  return useContext(CartContext);
+}
